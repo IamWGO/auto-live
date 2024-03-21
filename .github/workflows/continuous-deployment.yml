@@ -1,0 +1,38 @@
+name: Continuous-Deployment #@ 
+
+# Trigger which git action (push, pull_request)
+# in which branch(es) should start the jobs...
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# jobs to run
+jobs:
+  # build, the name of the job, a server to create and auto configure
+  build:
+    name: Publish a branch to your web server #@ 
+    runs-on: ubuntu-22.04 #@ input latest version
+    steps:
+    - name: Check out the main branch
+      uses: actions/checkout@v4 #@ use action from market place. check info on website
+      with:
+        ref: main #@ branch that we want to checkout.
+    #@ we dont run node for this project so comment line 25,26 out
+        # Run what's needed to get and generate additional files
+    # after checking out the repository...
+    # (npm install and npm run build are common for React projects)
+    #- run: npm install
+    #- run: npm run build
+    # Do we need to run something more?
+    #
+    - name: copy file via scp - secure copy
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: '*.*'
+        target: /var/www/html
